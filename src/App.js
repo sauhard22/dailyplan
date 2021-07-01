@@ -31,10 +31,12 @@ function App() {
   const [phone, setPhone] = useState('')
   const [topic, setTopic] = useState('')
   const [pd, setPd] = useState('')
+  const [chapter, setChapter] = useState('')
 
   /* Form State */
 
   const [form, setForm] = useState([])
+  const [id_1, setId_1] = useState('')
 
   /* functions */
 
@@ -89,11 +91,14 @@ function App() {
       teacher: teacher,
       phone: phone,
       topic: topic
+      
     }])
   }
 
   const generatePDF = () => {
+    setId_1(Math.floor(Math.floor(Math.random() * 10000)))
     axios.post("http://localhost:3001/generate/pdf", {
+      id_1: id_1,
       date: pDate,
       period_number: pd,
       subject: sub,
@@ -103,7 +108,10 @@ function App() {
       from_date: from,
       to_date: to,
       clas_s: cls,
-      day: day
+      chapter: chapter,
+      day: day,
+      form: form
+
     })
   }
   return (
@@ -134,6 +142,7 @@ function App() {
         <input placeholder="Subject" onChange={e => setSub(e.target.value)} type="text" />
         <input placeholder="Teacher Name" onChange={e => setTeacher(e.target.value)} type="text" />
         <input placeholder="Phone Number" onChange={e => setPhone(e.target.value)} type="text" />
+        <input placeholder="Chapter" type="text" onChange={e => setChapter(e.target.value)} />
         <input placeholder="Topic" type="text" onChange={e => setTopic(e.target.value)} />
         <button variant="contained" onClick={submit}>SUBMIT</button>
       </div>
