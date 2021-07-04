@@ -36,8 +36,14 @@ function App() {
   /* Form State */
 
   const [form, setForm] = useState([])
-  const [id_1, setId_1] = useState('')
+  const [id_1, setId_1] = useState(1)
 
+  /* Extra Subjects */
+    const [subs, setSubs] = useState('')
+
+    const [subId, setSubId] = useState(1)
+
+    const [extra, setExtra] = useState([])
   /* functions */
 
   const changeToValue = (e) => {
@@ -59,7 +65,7 @@ function App() {
 
   const handleClick = () => {
 
-    axios.post("http://localhost:3001/form_details/insert", {
+    axios.post("http://35.223.189.206/form_details/insert", {
       from_date: from,
       to_date: to,
       clas_s: cls,
@@ -76,7 +82,7 @@ function App() {
 
   const submit = () => {
 
-    axios.post("http://localhost:3001/period_details/insert", {
+    axios.post("http://35.223.189.206/period_details/insert", {
       date: pDate,
       period_number: pd,
       subject: sub,
@@ -90,14 +96,28 @@ function App() {
       subject: sub,
       teacher: teacher,
       phone: phone,
-      topic: topic
-      
+      topic: topic,
+      chapter: chapter
+
     }])
+  }
+
+  const submitExtraSub = () => {
+    
+    setSubId(subId + 1)
+
+    setExtra([...extra, {
+      id : subId,
+      subject: subs
+    }])
+
+    console.log(extra)
   }
 
   const generatePDF = () => {
     setId_1(Math.floor(Math.floor(Math.random() * 10000)))
-    axios.post("http://localhost:3001/generate/pdf", {
+    // setId_1(id_1 + 1);
+    axios.post("http://35.223.189.206/generate/pdf", {
       id_1: id_1,
       date: pDate,
       period_number: pd,
@@ -110,8 +130,14 @@ function App() {
       clas_s: cls,
       chapter: chapter,
       day: day,
-      form: form
+      form: form,
+      extra: extra
+    })
+  }
 
+  const downloadPDF = () => {
+    axios.post("http://35.223.189.206/download/pdf", {
+      id_1: id_1
     })
   }
   return (
@@ -120,16 +146,16 @@ function App() {
     <div className="form">
       <h1>Daily Plan</h1>
       <div>
-          <label >From</label>
-          <input type="text" placeholder="FROM DATE" onChange={changeFromValue} />       
-          <label>To</label>
-          <input placeholder="TO DATE" type="text" onChange={changeToValue} />       
-          <label>Class</label>
-          <input placeholder="Class" type="text" onChange={changeClassValue} />        
-          <label>Day</label>
-          <input placeholder="Day" type="text" onChange={changeDayValue} />  
-          <label>Present Date</label>
-          <input placeholder="Date" type="text" onChange={changePresentDateValue} />
+        <label >From</label>
+        <input type="date" placeholder="FROM DATE" onChange={changeFromValue} />
+        <label>To</label>
+        <input placeholder="TO DATE" type="date" onChange={changeToValue} />
+        <label>Class</label>
+        <input placeholder="Class" type="text" onChange={changeClassValue} />
+        <label>Day</label>
+        <input placeholder="Day" type="text" onChange={changeDayValue} />
+        <label>Present Date</label>
+        <input placeholder="Date" type="date" onChange={changePresentDateValue} />
         <button variant="contained" onClick={handleClick}>SUBMIT</button>
       </div>
       <br />
@@ -146,7 +172,16 @@ function App() {
         <input placeholder="Topic" type="text" onChange={e => setTopic(e.target.value)} />
         <button variant="contained" onClick={submit}>SUBMIT</button>
       </div>
+
       <br />
+
+      <div>
+        <label >Extra Subject</label>
+        <input placeholder="Subject Name" type="text" onChange={e => setSubs(e.target.value)} /> 
+        <button onClick={submitExtraSub}>SUBMIT</button>
+      </div>
+
+
 
       {/* Main */}
 
@@ -162,7 +197,7 @@ function App() {
             form.map(form => (
               <div>
                 <h3>Period {form.period} {form.subject} [{form.teacher}] Ph no. {form.phone}</h3>
-                <h3>Zoom Interactive class(Chap 1- Topic {form.topic})</h3>
+                <h3>Zoom Interactive class(Chap {form.chapter}- Topic {form.topic})</h3>
               </div>
             ))
           }
@@ -171,11 +206,13 @@ function App() {
           <h2>5:00PM – 6:00 PM  - SELF STUDY/REVISION TIME</h2>
         </div>
         <div className="content">
-          <h3>Sub 1</h3>
-          <h3>Sub 2</h3>
-          <h3>Sub 3</h3>
-          <h3>Sub 4</h3>
-          <h3>Sub 5</h3>
+        {
+          extra.map(extra => (
+            <div>
+              <h3>Sub {extra.id} : {extra.subject}</h3>
+            </div>
+          ))
+        }
         </div>
         <div>
           <h2>Note: In each period Teacher will be available on
@@ -184,7 +221,8 @@ function App() {
             text/voice messaging or calling the teacher. </h2>
         </div>
       </div>
-      <button onClick={generatePDF}>Generate</button>
+      <button onClick={() => 
+        {generatePDF() ; downloadPDF()}}>Generate</button> 
     </div>
   );
 }
